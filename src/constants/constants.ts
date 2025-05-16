@@ -173,6 +173,7 @@ export enum CityCode {
     Suzhou = 'suzhou',
     Taipei = 'taipei',
     Tokyo = 'tokyo',
+    Toronto = 'toronto',
 }
 
 export enum StationCity {

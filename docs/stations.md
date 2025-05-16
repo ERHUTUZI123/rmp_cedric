@@ -103,7 +103,7 @@ const defaultMyStationAttributes: MyStationAttributes = {
 In this section, we will guide you on creating a React component that enables users to modify the attributes of a station. This component will be integrated into the details panel and can be customized using various input elements like `<input />`, `<textarea />`, or `<select />` to offer a user-friendly interface for attribute modification.
 
 ```tsx
-import { Input, Select } from '@chakra-ui/react'
+import { Input, Select } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { AttrsProps } from '../../../constants/constants';
 
