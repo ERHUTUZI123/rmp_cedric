@@ -190,8 +190,8 @@ const SvgWrapper = () => {
 
     const handleBackgroundWheel = useEvent((e: React.WheelEvent<SVGSVGElement>) => {
         let newSvgViewBoxZoom = svgViewBoxZoom;
-        if (e.deltaY > 0 && svgViewBoxZoom + 10 < 400) newSvgViewBoxZoom = svgViewBoxZoom + 10;
-        else if (e.deltaY < 0 && svgViewBoxZoom - 10 > 0) newSvgViewBoxZoom = svgViewBoxZoom - 10;
+        if (e.deltaY > 0 && svgViewBoxZoom + 1 < 400) newSvgViewBoxZoom = svgViewBoxZoom + 1;
+        else if (e.deltaY < 0 && svgViewBoxZoom - 1 > 0) newSvgViewBoxZoom = svgViewBoxZoom - 1;
         dispatch(setSvgViewBoxZoom(newSvgViewBoxZoom));
 
         // the position the pointer points will still be in the same place after zooming

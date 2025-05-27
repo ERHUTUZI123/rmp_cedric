@@ -463,6 +463,9 @@
                 },
                 "chengduRTInt": {
                     "displayName": "Chengdu Rail Transit interchange station"
+                },
+                "torontoSubwayBasic": {
+                    "displayName": "Toronto Subway basic station"
                 }
             },
             "lines": {

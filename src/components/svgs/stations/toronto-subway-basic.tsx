@@ -21,16 +21,12 @@ const NAME_TT_BASIC = {
         size: 10,
         baseOffset: 1,
     },
-    zh: {
-        size: 5,
-        baseOffset: 1.5,
-    },
 };
 
 const NAME_DY_TT_BASIC = {
     top: {
         lineHeight: 5,
-        offset: 1 + NAME_TT_BASIC.zh.baseOffset + 2.5, // offset + baseOffset + iconRadius
+        offset: 1 + NAME_TT_BASIC.en.baseOffset + 2.5, // offset + baseOffset + iconRadius
         polarity: -1,
     },
     middle: {
@@ -49,7 +45,6 @@ const TorontoSubwayBasicStation = (props: StationComponentProps) => {
     const { id, x, y, attrs, handlePointerDown, handlePointerMove, handlePointerUp } = props;
     const {
         names = defaultStationAttributes.names,
-        color = defaultTorontoSubwayBasicStationAttributes.color,
         nameOffsetX = defaultTorontoSubwayBasicStationAttributes.nameOffsetX,
         nameOffsetY = defaultTorontoSubwayBasicStationAttributes.nameOffsetY,
         textVertical = defaultTorontoSubwayBasicStationAttributes.textVertical,
@@ -69,79 +64,47 @@ const TorontoSubwayBasicStation = (props: StationComponentProps) => {
     );
 
     const textX = nameOffsetX === 'left' ? -5 : nameOffsetX === 'right' ? 5 : 0;
-    const textY =
-        (names[NAME_DY[nameOffsetY].namesPos].split('\n').length * NAME_DY_TT_BASIC[nameOffsetY].lineHeight +
-            NAME_DY_TT_BASIC[nameOffsetY].offset) *
-        NAME_DY_TT_BASIC[nameOffsetY].polarity;
+    const textY = nameOffsetY === 'top' ? -3 : nameOffsetY === 'bottom' ? 3 : 0;
     const textAnchor = nameOffsetX === 'left' ? 'end' : nameOffsetX === 'right' ? 'start' : 'middle';
 
     const textVerticalY = nameOffsetY === 'top' ? -2.5 - 2 : 2.5 + 2; // iconRadius + verticalOffset
     const textVerticalAnchor = nameOffsetY === 'top' ? 'end' : 'start';
-    const textVerticalEnX = (names[0].split('\n').length * NAME_TT_BASIC.zh.size) / 2 + NAME_TT_BASIC.en.baseOffset;
+    const textVerticalEnX = (names[0].split('\n').length * NAME_TT_BASIC.en.size) / 2 + NAME_TT_BASIC.en.baseOffset;
+
+    const textDominantBaseline = nameOffsetY === 'top' ? 'up' : nameOffsetY === 'bottom' ? 'down' : 'bidirectional';
+
+    const textLineEl = React.useRef<SVGGElement | null>(null);
+    const [bBox, setBBox] = React.useState({ width: 12, height: 12 } as DOMRect);
+    React.useEffect(() => setBBox(textLineEl.current!.getBBox()), [...names, setBBox, textLineEl]);
+
+    const dx = textVertical ? textX + bBox.width / 2 : textX;
+    const dy = textVertical ? textY - bBox.height / 2 : textY;
 
     return (
         <g id={id} transform={`translate(${x}, ${y})`}>
             <circle
                 id={`stn_core_${id}`}
-                r={3}
-                stroke={color[2]}
-                strokeWidth="1"
+                r="1.7"
+                stroke="black"
+                strokeWidth="0.35"
                 fill="white"
                 onPointerDown={onPointerDown}
                 onPointerMove={onPointerMove}
                 onPointerUp={onPointerUp}
                 style={{ cursor: 'move' }}
             />
-            {!textVertical ? (
-                <g transform={`translate(${textX}, ${textY})`} textAnchor={textAnchor}>
+            <g ref={textLineEl}>
+                <g transform={`translate(${dx}, ${dy})rotate(${textVertical ? -45 : 0})`} textAnchor={textAnchor}>
                     <MultilineText
                         text={names[0].split('\n')}
-                        fontSize={NAME_TT_BASIC.zh.size}
-                        lineHeight={NAME_TT_BASIC.zh.size}
-                        grow="up"
-                        baseOffset={NAME_TT_BASIC.zh.baseOffset}
-                        className="rmp-name__zh"
-                    />
-                    <MultilineText
-                        text={names[1].split('\n')}
                         fontSize={NAME_TT_BASIC.en.size}
                         lineHeight={NAME_TT_BASIC.en.size}
-                        grow="down"
+                        grow={textDominantBaseline}
                         baseOffset={NAME_TT_BASIC.en.baseOffset}
                         className="rmp-name__en"
-                        fill="gray"
                     />
                 </g>
-            ) : (
-                <>
-                    <g transform={`translate(-1, ${textVerticalY})`} textAnchor={textVerticalAnchor}>
-                        <MultilineTextVertical
-                            text={names[0].split('\n')}
-                            fontSize={NAME_TT_BASIC.zh.size}
-                            lineWidth={NAME_TT_BASIC.zh.size}
-                            grow="bidirectional"
-                            baseOffset={NAME_TT_BASIC.zh.baseOffset}
-                            dominantBaseline="central"
-                            className="rmp-name__zh"
-                        />
-                    </g>
-                    <g
-                        transform={`translate(${textVerticalEnX}, ${textVerticalY})rotate(90)`}
-                        textAnchor={textVerticalAnchor}
-                    >
-                        <MultilineText
-                            text={names[1].split('\n')}
-                            fontSize={NAME_TT_BASIC.en.size}
-                            lineHeight={NAME_TT_BASIC.en.size}
-                            grow="up"
-                            baseOffset={NAME_TT_BASIC.en.baseOffset}
-                            className="rmp-name__en"
-                            dominantBaseline="central"
-                            fill="gray"
-                        />
-                    </g>
-                </>
-            )}
+            </g>
         </g>
     );
 };
@@ -149,15 +112,14 @@ const TorontoSubwayBasicStation = (props: StationComponentProps) => {
 /**
  * SuzhouRTBasicStation specific props.
  */
-export interface TorontoSubwayBasicStationAttributes extends StationAttributes, ColorAttribute {
+export interface TorontoSubwayBasicStationAttributes extends StationAttributes {
     nameOffsetX: NameOffsetX;
     nameOffsetY: NameOffsetY;
     textVertical: boolean;
 }
 
 const defaultTorontoSubwayBasicStationAttributes: TorontoSubwayBasicStationAttributes = {
-    ...defaultStationAttributes,
-    color: [CityCode.Toronto, 'sz1', '#78BA25', MonoColour.white],
+    names: ['Union Station'],
     nameOffsetX: 'right',
     nameOffsetY: 'top',
     textVertical: false,
@@ -170,20 +132,10 @@ const TorontoSubwayBasicAttrsComponent = (props: AttrsProps<TorontoSubwayBasicSt
     const fields: RmgFieldsField[] = [
         {
             type: 'textarea',
-            label: t('panel.details.stations.common.nameZh'),
-            value: attrs.names[0],
+            label: t('panel.details.stations.common.nameEn'),
+            value: attrs.names.at(0) ?? defaultTorontoSubwayBasicStationAttributes.names[0],
             onChange: val => {
                 attrs.names[0] = val;
-                handleAttrsUpdate(id, attrs);
-            },
-            minW: 'full',
-        },
-        {
-            type: 'textarea',
-            label: t('panel.details.stations.common.nameEn'),
-            value: attrs.names.at(1) ?? defaultTorontoSubwayBasicStationAttributes.names[1],
-            onChange: val => {
-                attrs.names[1] = val;
                 handleAttrsUpdate(id, attrs);
             },
             minW: 'full',
@@ -234,25 +186,14 @@ const TorontoSubwayBasicAttrsComponent = (props: AttrsProps<TorontoSubwayBasicSt
             oneLine: true,
             minW: 'full',
         },
-        {
-            type: 'custom',
-            label: t('color'),
-            component: (
-                <ColorField
-                    type={StationType.TorontoSubwayBasic}
-                    defaultTheme={defaultTorontoSubwayBasicStationAttributes.color}
-                />
-            ),
-        },
     ];
     return <RmgFields fields={fields} />;
 };
 
 const torontoSubwayBasicStationIcon = (
-    <svg width="303" height="303" viewBox="0 0 303 303" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="303" height="303" fill="white" />
-        <circle cx="151.5" cy="151.5" r="151.5" fill="black" />
-        <circle cx="151.5" cy="151.5" r="122.5" fill="white" />
+    <svg width="40" height="40" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="15" cy="15" r="12" fill="black" />
+        <circle cx="15" cy="15" r="8" fill="white" />
     </svg>
 );
 
@@ -262,7 +203,7 @@ const torontoSubwayBasicStation: Station<TorontoSubwayBasicStationAttributes> = 
     defaultAttrs: defaultTorontoSubwayBasicStationAttributes,
     attrsComponent: TorontoSubwayBasicAttrsComponent,
     metadata: {
-        displayName: 'panel.details.stations.suzhouRTBasic.displayName',
+        displayName: 'panel.details.stations.torontoSubwayBasic.displayName',
         cities: [CityCode.Toronto],
         canvas: [CanvasType.RailMap],
         categories: [CategoriesType.Metro],
